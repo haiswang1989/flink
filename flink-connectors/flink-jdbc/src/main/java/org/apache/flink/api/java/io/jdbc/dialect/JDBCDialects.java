@@ -31,7 +31,8 @@ public final class JDBCDialects {
 	private static final List<JDBCDialect> DIALECTS = Arrays.asList(
 		new DerbyDialect(),
 		new MySQLDialect(),
-		new PostgresDialect()
+		new PostgresDialect(),
+		new ClickhouseDialect()
 	);
 
 	/**
@@ -63,6 +64,26 @@ public final class JDBCDialects {
 		@Override
 		public String quoteIdentifier(String identifier) {
 			return identifier;
+		}
+	}
+
+	private static class ClickhouseDialect implements JDBCDialect {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public boolean canHandle(String url) {
+			return url.startsWith("jdbc:clickhouse:");
+		}
+
+		@Override
+		public Optional<String> defaultDriverName() {
+			return Optional.of("ru.yandex.clickhouse.ClickHouseDriver");
+		}
+
+		@Override
+		public String quoteIdentifier(String identifier) {
+			return "`" + identifier + "`";
 		}
 	}
 
