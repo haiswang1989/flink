@@ -19,13 +19,23 @@ import java.util.Map;
 import static org.apache.flink.table.descriptors.ConnectorDescriptorValidator.CONNECTOR_TYPE;
 import static org.apache.flink.table.descriptors.Schema.*;
 
-public class RedisTableSourceFactory implements
+public class RedisTableSourceSinkFactory implements
 	StreamTableSourceFactory<Row>,
 	StreamTableSinkFactory<Tuple2<Boolean, Row>> {
 
 	@Override
 	public StreamTableSink<Tuple2<Boolean, Row>> createStreamTableSink(Map<String, String> properties) {
-		return null;
+		DescriptorProperties descriptorProperties = getValidatedProperties(properties);
+		TableSchema tableSchema = TableSchemaUtils.getPhysicalSchema(descriptorProperties.getTableSchema(SCHEMA));
+		String redisValueType = descriptorProperties.getString(RedisValidator.REDIS_VALUE_TYPE);
+		int redisPort = descriptorProperties.getInt(RedisValidator.REDIS_PORT);
+		String redisIp = descriptorProperties.getString(RedisValidator.REDIS_IP);
+		return RedisTableSink.builder()
+					.setRedisIp(redisIp)
+					.setRedisPort(redisPort)
+					.setRedisValueType(redisValueType)
+					.setTableSchema(tableSchema)
+					.build();
 	}
 
 	@Override
